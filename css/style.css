@@ -15,7 +15,7 @@
 }
 @media screen and ((max-width: 424px) and (min-width: 375px)) {
     form {
-        width: 100%;
+        width: 100vw;
     }
     .history-inp {
         font-size: 1.3rem;
@@ -30,7 +30,7 @@
 }
 @media screen and (max-width: 374px) {
     form {
-        width: 100%;
+        width: 100vw;
     }
     .history-inp {
         font-size: 1rem;
