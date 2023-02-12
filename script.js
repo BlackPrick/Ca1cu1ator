@@ -7,6 +7,7 @@ let operand1 = "";
 let operand2 = "";
 let operator = "";
 let isCalculated = false;
+let equalBtn;
 
 // Events after button click
 BUTTONS.forEach((btn) => {
@@ -20,6 +21,8 @@ BUTTONS.forEach((btn) => {
         btn.classList.add('pressed')
         pressedBtn = btn
     })
+
+    if(btn.value==="=") equalBtn = btn
 })
 
 // Events after keydown
@@ -87,6 +90,7 @@ function operandConstructor(btn) {
 
 // Set operator for calculation
 function setOperator(btn) {
+    if(operator!=="" && operand2!=="") calculation(equalBtn)
     operator = btn.value
     HISTORY_INP.value = (operand1 !== "") ? ((+operand1) + " " + operator) : "0 " + operator;
     RESULT_INP.value = (operand1 !== "") ? (+operand1) : "0";
@@ -143,7 +147,7 @@ function lengthControl(number) {
     number = Number(number.toFixed(13))
     if (operand1.toString().length <= 13) return number;
 
-    if (number % 1 !== 0) return Math.round((number + Number.EPSILON) * 100) / 100;
+    if (number % 1 !== 0) return Math.round((number + Number.EPSILON) * 100000) / 100000;
     else return number.toExponential(6)
 }
 
