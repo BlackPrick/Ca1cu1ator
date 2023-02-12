@@ -1,16 +1,46 @@
-@media screen and (min-width: 426px) {
+@media screen and (min-width: 425px) {
     form {
         width: 425px;
     }
+    .history-inp {
+        font-size: 1.5rem;
+        color: grey;
+    }
+    .action-inp {
+        font-size: 4rem;
+    }
+    button {
+        font-size: 2rem;
+    }
 }
-@media screen and ((max-width: 425px) and (min-width: 375px)) {
+@media screen and ((max-width: 424px) and (min-width: 375px)) {
     form {
         width: 375px;
+    }
+    .history-inp {
+        font-size: 1.3rem;
+        color: grey;
+    }
+    .action-inp {
+        font-size: 3.5rem;
+    }
+    button {
+        font-size: 1.8rem;
     }
 }
 @media screen and (max-width: 374px) {
     form {
         width: 320px;
+    }
+    .history-inp {
+        font-size: 1rem;
+        color: grey;
+    }
+    .action-inp {
+        font-size: 3rem;
+    }
+    button {
+        font-size: 1.5rem;
     }
 }
 @font-face {
@@ -39,8 +69,10 @@ body {
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    position: relative;
 }
 form {
+    position: absolute;
     padding: 0.3rem;
 }
 fieldset {
@@ -67,13 +99,6 @@ fieldset {
     border: none;
     font-family: "digital";
 }
-.history-inp {
-    font-size: 1.5rem;
-    color: grey;
-}
-.action-inp {
-    font-size: 4rem;
-}
 
 .buttons {
     display: grid;
@@ -90,10 +115,10 @@ button {
     border: 1px solid rgba(195,195,195,0.8);
     border-radius: 0.3rem;
     box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
-    font-size: 2rem;
     background-color: #e1e1e133;
     position: relative;
     font-family: "orbition";
+    color: black;
 }
 
 button.equal {
