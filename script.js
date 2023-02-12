@@ -71,7 +71,7 @@ function manageOperand(action, value) {
 // Creating operands
 function operandConstructor(btn) {
     if (isCalculated) cleanCalculator()
-    let key = btn.innerText
+    let key = btn.value
     let currentOperand = manageOperand('get')
     
     if (currentOperand.length == 13) return;
@@ -87,7 +87,7 @@ function operandConstructor(btn) {
 
 // Set operator for calculation
 function setOperator(btn) {
-    operator = btn.getAttribute("value")
+    operator = btn.value
     HISTORY_INP.value = (operand1 !== "") ? ((+operand1) + " " + operator) : "0 " + operator;
     RESULT_INP.value = (operand1 !== "") ? (+operand1) : "0";
     isCalculated = false;
