@@ -73,10 +73,10 @@ function operandConstructor(btn) {
     if (isCalculated) cleanCalculator()
     let key = btn.value
     let currentOperand = manageOperand('get')
-    
+
     if (currentOperand.length == 13) return;
     else if (key === "." && currentOperand.includes(".")) return;
-    else if (key === "0" && currentOperand==="0") return;
+    else if (key === "0" && currentOperand === "0") return;
     else if (key === "." && currentOperand === "") currentOperand = '0.';
     else if (key !== "." && key !== "0" && currentOperand === "0") currentOperand = key;
     else currentOperand += key
@@ -160,23 +160,25 @@ function cleanCalculator() {
 // Backspace function 
 function deleteSymbol() {
     if (isCalculated === true) HISTORY_INP.value = "";
-    else if (operator !== "") {
-        operand2 = (operand2.length > 1) ? operand2.slice(0, -1) : "";
-        RESULT_INP.value = (operand2 !== "") ? Number(operand2) : "0"
-    }
-    else {
-        operand1 = (operand1.length > 1) ? operand1.slice(0, -1) : "";
-        RESULT_INP.value = (operand1 !== "") ? Number(operand1) : "0"
-    }
+
+    let currentOperand = manageOperand('get')
+
+    currentOperand = (currentOperand.length > 1) ? currentOperand.slice(0, -1) : "";
+    RESULT_INP.value = (currentOperand !== "") ? currentOperand : "0"
+    if(Number(currentOperand)===0) currentOperand = "0";
+
+    manageOperand('set', currentOperand)
 }
 
 // Negate number
 function negateNumber() {
     let currentOperand = manageOperand('get')
-    if(currentOperand==="" || currentOperand==="0") return;
+
+    if (currentOperand === "" || currentOperand === "0") return;
     currentOperand = +currentOperand * -1;
     RESULT_INP.value = currentOperand
     currentOperand = currentOperand.toString()
+    
     manageOperand('set', currentOperand)
 }
 
