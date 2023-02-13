@@ -1,6 +1,7 @@
 @media screen and (min-width: 425px) {
     form {
         width: 425px;
+        padding: 0.3rem;
     }
     .history-inp {
         font-size: 1.5rem;
@@ -13,36 +14,23 @@
         font-size: 2rem;
     }
 }
-@media screen and ((max-width: 424px) and (min-width: 375px)) {
+@media screen and (max-width: 424px) {
     form {
         width: 100vw;
+        padding: 0 1vw;
     }
     .history-inp {
-        font-size: 1.3rem;
+        font-size: 6vw;
         color: grey;
     }
     .action-inp {
-        font-size: 3.5rem;
+        font-size: 15vw;
     }
     button {
-        font-size: 1.8rem;
+        font-size: 8vw;
     }
 }
-@media screen and (max-width: 374px) {
-    form {
-        width: 100vw;
-    }
-    .history-inp {
-        font-size: 1rem;
-        color: grey;
-    }
-    .action-inp {
-        font-size: 3rem;
-    }
-    button {
-        font-size: 1.5rem;
-    }
-}
+
 @font-face {
     font-family: "digital";
     src: url("./Digital7Italic-BW658.ttf") format("truetype");
@@ -62,15 +50,10 @@
     box-sizing: border-box;
 }
 body {
-    overflow: hidden;
     background-color: #f4f5f8;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
+    height: 100vh;
 }
 form {
-    padding: 0.3rem;
     position: fixed;
     top: 50%;
     left:50%;
