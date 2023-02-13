@@ -2,12 +2,11 @@ const BUTTONS = document.querySelectorAll('button')
 const RESULT_INP = document.querySelector('.action-inp')
 const HISTORY_INP = document.querySelector('.history-inp')
 let pressedBtn;
-
+let equalBtn;
 let operand1 = "";
 let operand2 = "";
 let operator = "";
 let isCalculated = false;
-let equalBtn;
 
 // Events after button click
 BUTTONS.forEach((btn) => {
