@@ -21,7 +21,7 @@ BUTTONS.forEach((btn) => {
         pressedBtn = btn
     })
 
-    if(btn.value==="=") equalBtn = btn
+    if (btn.value === "=") equalBtn = btn
 })
 
 // Events after keydown
@@ -67,6 +67,7 @@ function manageOperand(action, value) {
         case 'set':
             if (operator === "") operand1 = value
             else operand2 = value
+            break;
     }
 }
 
@@ -89,7 +90,7 @@ function operandConstructor(btn) {
 
 // Set operator for calculation
 function setOperator(btn) {
-    if(operator!=="" && operand2!=="") calculation(equalBtn)
+    if (operator !== "" && operand2 !== "") calculation(equalBtn)
     operator = btn.value
     HISTORY_INP.value = (operand1 !== "") ? ((+operand1) + " " + operator) : "0 " + operator;
     RESULT_INP.value = (operand1 !== "") ? (+operand1) : "0";
@@ -101,7 +102,7 @@ function setOperator(btn) {
 function calculation(btn) {
     if (operator === "") return;
     if (operand2 === "") operand2 = operand1;
-    let key = btn.innerText.trim()
+    let key = btn.value
     let a = Number(operand1);
     let b = Number(operand2);
 
@@ -144,7 +145,7 @@ function calculation(btn) {
 function lengthControl(number) {
     // Remove inaccuracy
     number = Number(number.toFixed(13))
-    if (operand1.toString().length <= 13) return number;
+    if (number.toString().length <= 13) return number;
 
     if (number % 1 !== 0) return Math.round((number + Number.EPSILON) * 100000) / 100000;
     else return number.toExponential(6)
@@ -168,20 +169,31 @@ function deleteSymbol() {
 
     currentOperand = (currentOperand.length > 1) ? currentOperand.slice(0, -1) : "";
     RESULT_INP.value = (currentOperand !== "" && currentOperand !== "-") ? currentOperand : "0"
-    if(Number(currentOperand)===0) currentOperand = "0";
+    if (Number(currentOperand) === 0) currentOperand = "0";
 
     manageOperand('set', currentOperand)
 }
 
-// Negate number
+// Make a number negative
 function negateNumber() {
-    let currentOperand = manageOperand('get')
+    let showNegation = false;
+    if(isCalculated) {
+        operand2 = ""
+        operator = ""
+        isCalculated = false
+        showNegation = true
+    }
 
-    if (currentOperand === "" || currentOperand === "0") return;
+    let currentOperand = manageOperand('get')
+    if(currentOperand==="0") return;
+    if(currentOperand==="" && operand1!=="") currentOperand = operand1;
+    if (currentOperand === "") return;
+
     currentOperand = +currentOperand * -1;
     RESULT_INP.value = currentOperand
-    currentOperand = currentOperand.toString()
+    if (showNegation) HISTORY_INP.value = currentOperand
 
+    currentOperand = currentOperand.toString()
     manageOperand('set', currentOperand)
 }
 
