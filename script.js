@@ -77,7 +77,7 @@ function operandConstructor(btn) {
     let key = btn.value
     let currentOperand = manageOperand('get')
 
-    if (currentOperand.length == 13) return;
+    if (currentOperand.length >= 12) return;
     else if (key === "." && currentOperand.includes(".")) return;
     else if (key === "0" && currentOperand === "0") return;
     else if (key === "." && currentOperand === "") currentOperand = '0.';
@@ -135,7 +135,7 @@ function calculation(btn) {
     operand1 = lengthControl(operand1)
 
     HISTORY_INP.value = a + " " + operator + " " + b + " =";
-    RESULT_INP.value = +operand1
+    RESULT_INP.value = operand1
 
     isCalculated = true
     operand1 = operand1.toString()
@@ -145,7 +145,7 @@ function calculation(btn) {
 function lengthControl(number) {
     // Remove inaccuracy
     number = Number(number.toFixed(13))
-    if (number.toString().length <= 13) return number;
+    if (number.toString().length <= 12) return number;
 
     if (number % 1 !== 0) return Math.round((number + Number.EPSILON) * 100000) / 100000;
     else return number.toExponential(6)
