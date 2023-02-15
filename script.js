@@ -91,9 +91,12 @@ function operandConstructor(btn) {
 // Set operator for calculation
 function setOperator(btn) {
     if (operator !== "" && operand2 !== "") calculation(equalBtn)
+    if(operand1 === "") operand1 = "0";
+
     operator = btn.value
-    HISTORY_INP.value = (operand1 !== "") ? ((+operand1) + " " + operator) : "0 " + operator;
-    RESULT_INP.value = (operand1 !== "") ? (+operand1) : "0";
+    RESULT_INP.value = lengthControl(+operand1)
+    showHistory(operand1)
+
     isCalculated = false;
     operand2 = "";
 }
@@ -105,20 +108,21 @@ function calculation(btn) {
     let key = btn.value
     let a = Number(operand1);
     let b = Number(operand2);
+    let calcResult = 0;
 
     if (key === "=") {
         switch (operator) {
             case '+':
-                operand1 = a + b;
+                calcResult = a + b;
                 break;
             case '-':
-                operand1 = a - b;
+                calcResult = a - b;
                 break;
             case '*':
-                operand1 = a * b;
+                calcResult = a * b;
                 break;
             case '/':
-                if (b !== 0) operand1 = a / b
+                if (b !== 0) calcResult = a / b
                 else {
                     cleanCalculator()
                     RESULT_INP.value = 'Error';
@@ -129,26 +133,34 @@ function calculation(btn) {
     }
     else if (key === "%") {
         let index = (operator === "-" || operator === "+") ? 100 : 1000;
-        operand1 = a / index * b
+        calcResult = a / index * b
     }
-
-    operand1 = lengthControl(operand1)
-
-    HISTORY_INP.value = a + " " + operator + " " + b + " =";
-    RESULT_INP.value = operand1
-
+    
+    RESULT_INP.value = lengthControl(calcResult)
     isCalculated = true
-    operand1 = operand1.toString()
+    showHistory(operand1, operand2)
+    operand1 = calcResult.toString()
 }
 
 // Truncate infinity/floats and big numbers to exponential
 function lengthControl(number) {
+    number = number.toString()
+    if(number.charAt(0)==="-" && number.length<=13) return number;
+    if(number.charAt(0)!=="-" && number.length<=12) return number;
     // Remove inaccuracy
-    number = Number(number.toFixed(13))
-    if (number.toString().length <= 12) return number;
-
-    if (number % 1 !== 0) return Math.round((number + Number.EPSILON) * 100000) / 100000;
+    number = Number(number)
+    let accurate = number.toFixed(13)
+    if (accurate.length <= 12) return accurate;
+    // To exponential or get round float
+    if (number % 1 !== 0) return Math.round((number + Number.EPSILON) * 1000000) / 1000000;
     else return number.toExponential(6)
+}
+
+// Show previous action in history input
+function showHistory(a, b) {
+    let out= lengthControl(+a) + " " + operator + " ";
+    if(b!==undefined) out+= lengthControl(+b) + " =";
+    HISTORY_INP.value = out;
 }
 
 // Clean calculator
@@ -190,9 +202,8 @@ function negateNumber() {
     if (currentOperand === "") return;
 
     currentOperand = +currentOperand * -1;
-    RESULT_INP.value = currentOperand
-    if (showNegation) HISTORY_INP.value = currentOperand
-
+    RESULT_INP.value = lengthControl(currentOperand)
+    if (showNegation) HISTORY_INP.value = lengthControl(currentOperand)
     currentOperand = currentOperand.toString()
     manageOperand('set', currentOperand)
 }
