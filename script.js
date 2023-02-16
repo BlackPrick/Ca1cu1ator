@@ -91,7 +91,7 @@ function operandConstructor(btn) {
 // Set operator for calculation
 function setOperator(btn) {
     if (operator !== "" && operand2 !== "") calculation(equalBtn)
-    if(operand1 === "") operand1 = "0";
+    if (operand1 === "") operand1 = "0";
 
     operator = btn.value
     RESULT_INP.value = lengthControl(+operand1)
@@ -135,7 +135,7 @@ function calculation(btn) {
         let index = (operator === "-" || operator === "+") ? 100 : 1000;
         calcResult = a / index * b
     }
-    
+
     RESULT_INP.value = lengthControl(calcResult)
     isCalculated = true
     showHistory(operand1, operand2)
@@ -144,22 +144,30 @@ function calculation(btn) {
 
 // Truncate infinity/floats and big numbers to exponential
 function lengthControl(number) {
-    number = number.toString()
-    if(number.charAt(0)==="-" && number.length<=13) return number;
-    if(number.charAt(0)!=="-" && number.length<=12) return number;
+    // Chech if length is valid function
+    const lenghtIsOkCheck = (a) => {
+        a = a.toString()
+        if ((a.charAt(0) === "-" && a.length <= 13) || (a.charAt(0) !== "-" && a.length <= 12)) return true;
+        else return false;
+    }
+
+    if (lenghtIsOkCheck(number)) return number;
     // Remove inaccuracy
-    number = Number(number)
-    let accurate = number.toFixed(13)
-    if (accurate.length <= 12) return accurate;
+    number = Number(number.toFixed(13))
+    if (lenghtIsOkCheck(number)) return number;
     // To exponential or get round float
-    if (number % 1 !== 0) return Math.round((number + Number.EPSILON) * 1000000) / 1000000;
-    else return number.toExponential(6)
+    if (number % 1 !== 0) {
+        number = Math.round((number + Number.EPSILON) * 1000000) / 1000000;
+        if (lenghtIsOkCheck(number)) return number;
+    }
+    number = number.toExponential(6)
+    return number;
 }
 
 // Show previous action in history input
 function showHistory(a, b) {
-    let out= lengthControl(+a) + " " + operator + " ";
-    if(b!==undefined) out+= lengthControl(+b) + " =";
+    let out = lengthControl(+a) + " " + operator + " ";
+    if (b !== undefined) out += lengthControl(+b) + " =";
     HISTORY_INP.value = out;
 }
 
@@ -189,7 +197,7 @@ function deleteSymbol() {
 // Make a number negative
 function negateNumber() {
     let showNegation = false;
-    if(isCalculated) {
+    if (isCalculated) {
         operand2 = ""
         operator = ""
         isCalculated = false
@@ -197,8 +205,8 @@ function negateNumber() {
     }
 
     let currentOperand = manageOperand('get')
-    if(currentOperand==="0") return;
-    if(currentOperand==="" && operand1!=="") currentOperand = operand1;
+    if (currentOperand === "0") return;
+    if (currentOperand === "" && operand1 !== "") currentOperand = operand1;
     if (currentOperand === "") return;
 
     currentOperand = +currentOperand * -1;
