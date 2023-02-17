@@ -47,8 +47,8 @@ function setAction(dataType, btn) {
         case "result":
             calculation(btn)
             break;
-        case "delete":
-            deleteSymbol()
+        case "backspace":
+            backspace()
             break;
         case "clean":
             cleanCalculator()
@@ -182,7 +182,7 @@ function cleanCalculator() {
 }
 
 // Backspace function 
-function deleteSymbol() {
+function backspace() {
     if (isCalculated === true) HISTORY_INP.value = "";
 
     let currentOperand = manageOperand('get')
