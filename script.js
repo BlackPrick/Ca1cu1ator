@@ -53,8 +53,14 @@ function setAction(dataType, btn) {
         case "clean":
             cleanCalculator()
             break;
+        case "clean-entry":
+            cleanEntry()
+            break;
         case "negate":
             negateNumber()
+            break;
+        case "ones-division":
+            onesDivision()
             break;
     }
 }
@@ -65,6 +71,7 @@ function manageOperand(action, value) {
         case 'get':
             return (operator === "") ? operand1 : operand2;
         case 'set':
+            value = value.toString()
             if (operator === "") operand1 = value
             else operand2 = value
             break;
@@ -94,7 +101,7 @@ function setOperator(btn) {
     if (operand1 === "") operand1 = "0";
 
     operator = btn.value
-    RESULT_INP.value = lengthControl(+operand1)
+    RESULT_INP.value = lengthControl(operand1)
     showHistory(operand1)
 
     isCalculated = false;
@@ -150,8 +157,9 @@ function lengthControl(number) {
         if ((a.charAt(0) === "-" && a.length <= 13) || (a.charAt(0) !== "-" && a.length <= 12)) return true;
         else return false;
     }
-
     if (lenghtIsOkCheck(number)) return number;
+
+    number = +number
     // Remove inaccuracy
     number = Number(number.toFixed(13))
     if (lenghtIsOkCheck(number)) return number;
@@ -166,8 +174,8 @@ function lengthControl(number) {
 
 // Show previous action in history input
 function showHistory(a, b) {
-    let out = lengthControl(+a) + " " + operator + " ";
-    if (b !== undefined) out += lengthControl(+b) + " =";
+    let out = lengthControl(a) + " " + operator + " ";
+    if (b !== undefined) out += lengthControl(b) + " =";
     HISTORY_INP.value = out;
 }
 
@@ -179,6 +187,16 @@ function cleanCalculator() {
     HISTORY_INP.value = "";
     RESULT_INP.value = "0";
     isCalculated = false;
+}
+
+// Clean last entry
+function cleanEntry() {
+    if (operator !== "" && !isCalculated) {
+        operand2 = "0";
+        RESULT_INP.value = operand2;
+        return;
+    }
+    else cleanCalculator()
 }
 
 // Backspace function 
@@ -212,8 +230,33 @@ function negateNumber() {
     currentOperand = +currentOperand * -1;
     RESULT_INP.value = lengthControl(currentOperand)
     if (showNegation) HISTORY_INP.value = lengthControl(currentOperand)
-    currentOperand = currentOperand.toString()
     manageOperand('set', currentOperand)
+}
+
+// Delete 1 by another number
+function onesDivision() {
+    if(isCalculated) {
+        operand2 = "";
+        operator = "";
+        isCalculated = false;
+    }
+    let currentOperand = manageOperand('get')
+
+    if(currentOperand==="") currentOperand = "1"
+    else if(Number(currentOperand)==0) {
+        cleanCalculator()
+        RESULT_INP.value = "Error";
+        return;
+    }
+    
+    currentOperand = 1 / +currentOperand;
+    manageOperand('set', currentOperand);
+    
+    RESULT_INP.value = lengthControl(currentOperand);
+    if(operand2!=="" && !isCalculated) {
+        HISTORY_INP.value = lengthControl(operand1)+" "+operator+" "+lengthControl(operand2)
+    }
+    else HISTORY_INP.value = lengthControl(operand1)
 }
 
 // Remove pressed button style
