@@ -205,6 +205,7 @@ function negateNumber() {
 // Indicate a single number action and calculate
 function singleNumAction(btn) {
     if (isCalculated) resetLastEntry() 
+    if(operator!=="" && operand2==="") operand2 = "1";
 
     let currentOperand = manageOperand('get')
     let action = btn.value
