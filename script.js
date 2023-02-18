@@ -2,7 +2,6 @@ const BUTTONS = document.querySelectorAll('button')
 const RESULT_INP = document.querySelector('.action-inp')
 const HISTORY_INP = document.querySelector('.history-inp')
 let pressedBtn;
-let equalBtn;
 let operand1 = "";
 let operand2 = "";
 let operator = "";
@@ -20,8 +19,6 @@ BUTTONS.forEach((btn) => {
         btn.classList.add('pressed')
         pressedBtn = btn
     })
-
-    if (btn.value === "=") equalBtn = btn
 })
 
 // Events after keydown
@@ -45,7 +42,10 @@ function setAction(dataType, btn) {
             setOperator(btn)
             break;
         case "result":
-            calculation(btn)
+            calculation()
+            break;
+        case "percent":
+            getPercent()
             break;
         case "backspace":
             backspace()
@@ -97,55 +97,71 @@ function operandConstructor(btn) {
 
 // Set operator for calculation
 function setOperator(btn) {
-    if (operator !== "" && operand2 !== "") calculation(equalBtn)
+    if (operator !== "" && operand2 !== "") calculation()
     if (operand1 === "") operand1 = "0";
 
     operator = btn.value
     RESULT_INP.value = lengthControl(operand1)
-    showHistory(operand1)
 
     isCalculated = false;
     operand2 = "";
+    showHistory()
 }
 
 // Indicate calculation type and get result
-function calculation(btn) {
+function calculation() {
     if (operator === "") return;
     if (operand2 === "") operand2 = operand1;
-    let key = btn.value
-    let a = Number(operand1);
-    let b = Number(operand2);
+    let a = +operand1;
+    let b = +operand2;
     let calcResult = 0;
 
-    if (key === "=") {
-        switch (operator) {
-            case '+':
-                calcResult = a + b;
-                break;
-            case '-':
-                calcResult = a - b;
-                break;
-            case '*':
-                calcResult = a * b;
-                break;
-            case '/':
-                if (b !== 0) calcResult = a / b
-                else return showError();
-                break;
-        }
-    }
-    else if (key === "%") {
-        let index = (operator === "-" || operator === "+") ? 100 : 1000;
-        calcResult = a / index * b
+    switch (operator) {
+        case '+':
+            calcResult = a + b;
+            break;
+        case '-':
+            calcResult = a - b;
+            break;
+        case '*':
+            calcResult = a * b;
+            break;
+        case '/':
+            if (b !== 0) calcResult = a / b
+            else return showError();
+            break;
     }
 
     RESULT_INP.value = lengthControl(calcResult)
     isCalculated = true
-    showHistory(operand1, operand2)
+    showHistory()
     operand1 = calcResult.toString()
 }
 
-// Truncate infinity/floats and big numbers to exponential
+// Get percent
+function getPercent() {
+    if (operator === "") {
+        operand1 = +operand1 / 100;
+
+        RESULT_INP.value = lengthControl(operand1)
+        operand1 = operand1.toString();
+        showHistory()
+        return;
+    }
+    
+    if (operand2 === "") operand2 = operand1;
+
+    if (operator === "/" || operator === "*")  
+        operand2 = +operand2 / 100;
+    else if (operator === "-" || operator === "+") 
+        operand2 = (+operand1) / 100 * (+operand2);
+
+    RESULT_INP.value = lengthControl(operand2)
+    operand2 = operand2.toString();
+    showHistory();
+}
+
+// Truncate infinity/floats, remove inaccuracy and big numbers to exponential
 function lengthControl(number) {
     // Chech if length is valid function
     const lenghtIsOkCheck = (a) => {
@@ -169,9 +185,12 @@ function lengthControl(number) {
 }
 
 // Show previous action in history input
-function showHistory(a, b) {
-    let out = lengthControl(a) + " " + operator + " ";
-    if (b !== undefined) out += lengthControl(b) + " =";
+function showHistory() {
+    let out = "";
+    out += lengthControl(operand1)
+    if (operator !== "") out += " " + operator + " ";
+    if (operand2 !== "") out += lengthControl(operand2);
+    if (isCalculated && operand2 !== "") out += " = ";
     HISTORY_INP.value = out;
 }
 
@@ -210,12 +229,10 @@ function backspace() {
 
 // Make a number negative
 function negateNumber() {
-    let showNegation = false;
     if (isCalculated) {
         operand2 = ""
         operator = ""
         isCalculated = false
-        showNegation = true
     }
 
     let currentOperand = manageOperand('get')
@@ -225,8 +242,8 @@ function negateNumber() {
 
     currentOperand = +currentOperand * -1;
     RESULT_INP.value = lengthControl(currentOperand)
-    if (showNegation) HISTORY_INP.value = lengthControl(currentOperand)
     manageOperand('set', currentOperand)
+    showHistory()
 }
 
 // Indicate a single number action and calculate
@@ -242,14 +259,14 @@ function singleNumAction(btn) {
 
     switch (action) {
         case "1/x":
-            if(currentOperand === 0) return showError();
+            if (currentOperand === 0) return showError();
             currentOperand = 1 / currentOperand;
             break;
         case "square":
             currentOperand = currentOperand ** 2;
             break;
         case "root":
-            if(currentOperand < 0) return showError();
+            if (currentOperand < 0) return showError();
             currentOperand = Math.sqrt(currentOperand)
             break;
     }
@@ -257,10 +274,7 @@ function singleNumAction(btn) {
     manageOperand('set', currentOperand);
 
     RESULT_INP.value = lengthControl(currentOperand);
-    if (operand2 !== "" && !isCalculated) {
-        HISTORY_INP.value = lengthControl(operand1) + " " + operator + " " + lengthControl(operand2)
-    }
-    else HISTORY_INP.value = lengthControl(operand1)
+    showHistory()
 }
 
 
