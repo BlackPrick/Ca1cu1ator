@@ -275,7 +275,7 @@ function backspace() {
     let currentOperand = manageOperand('get')
 
     currentOperand = (currentOperand.length > 1) ? currentOperand.slice(0, -1) : "";
-    RESULT_INP.value = (currentOperand !== "" && currentOperand !== "-") ? currentOperand : "0"
+    RESULT_INP.value = (currentOperand !== "" && currentOperand !== "-") ? lengthControl(currentOperand) : "0"
     if (Number(currentOperand) === 0) currentOperand = "0";
 
     manageOperand('set', currentOperand)
