@@ -140,6 +140,8 @@ function calculation() {
 
 // Get percent
 function getPercent() {
+    if (isCalculated) resetLastEntry() 
+
     if (operator === "") {
         operand1 = +operand1 / 100;
 
@@ -148,12 +150,12 @@ function getPercent() {
         showHistory()
         return;
     }
-    
+
     if (operand2 === "") operand2 = operand1;
 
-    if (operator === "/" || operator === "*")  
+    if (operator === "/" || operator === "*")
         operand2 = +operand2 / 100;
-    else if (operator === "-" || operator === "+") 
+    else if (operator === "-" || operator === "+")
         operand2 = (+operand1) / 100 * (+operand2);
 
     RESULT_INP.value = lengthControl(operand2)
@@ -182,6 +184,50 @@ function lengthControl(number) {
     }
     number = number.toExponential(6)
     return number;
+}
+
+
+// Make a number negative
+function negateNumber() {
+    if (isCalculated) resetLastEntry() 
+
+    let currentOperand = manageOperand('get')
+    if (currentOperand === "0") return;
+    if (currentOperand === "" && operand1 !== "") currentOperand = operand1;
+    if (currentOperand === "") return;
+
+    currentOperand = +currentOperand * -1;
+    RESULT_INP.value = lengthControl(currentOperand)
+    manageOperand('set', currentOperand)
+    showHistory()
+}
+
+// Indicate a single number action and calculate
+function singleNumAction(btn) {
+    if (isCalculated) resetLastEntry() 
+
+    let currentOperand = manageOperand('get')
+    let action = btn.value
+    currentOperand = +currentOperand
+
+    switch (action) {
+        case "1/x":
+            if (currentOperand === 0) return showError();
+            currentOperand = 1 / currentOperand;
+            break;
+        case "square":
+            currentOperand = currentOperand ** 2;
+            break;
+        case "root":
+            if (currentOperand < 0) return showError();
+            currentOperand = Math.sqrt(currentOperand)
+            break;
+    }
+
+    manageOperand('set', currentOperand);
+
+    RESULT_INP.value = lengthControl(currentOperand);
+    showHistory()
 }
 
 // Show previous action in history input
@@ -214,6 +260,13 @@ function cleanEntry() {
     else cleanCalculator()
 }
 
+// Reset last entry
+function resetLastEntry() {
+    operand2 = "";
+    operator = "";
+    isCalculated = false;
+}
+
 // Backspace function 
 function backspace() {
     if (isCalculated === true) HISTORY_INP.value = "";
@@ -226,57 +279,6 @@ function backspace() {
 
     manageOperand('set', currentOperand)
 }
-
-// Make a number negative
-function negateNumber() {
-    if (isCalculated) {
-        operand2 = ""
-        operator = ""
-        isCalculated = false
-    }
-
-    let currentOperand = manageOperand('get')
-    if (currentOperand === "0") return;
-    if (currentOperand === "" && operand1 !== "") currentOperand = operand1;
-    if (currentOperand === "") return;
-
-    currentOperand = +currentOperand * -1;
-    RESULT_INP.value = lengthControl(currentOperand)
-    manageOperand('set', currentOperand)
-    showHistory()
-}
-
-// Indicate a single number action and calculate
-function singleNumAction(btn) {
-    if (isCalculated) {
-        operand2 = "";
-        operator = "";
-        isCalculated = false;
-    }
-    let currentOperand = manageOperand('get')
-    let action = btn.value
-    currentOperand = +currentOperand
-
-    switch (action) {
-        case "1/x":
-            if (currentOperand === 0) return showError();
-            currentOperand = 1 / currentOperand;
-            break;
-        case "square":
-            currentOperand = currentOperand ** 2;
-            break;
-        case "root":
-            if (currentOperand < 0) return showError();
-            currentOperand = Math.sqrt(currentOperand)
-            break;
-    }
-
-    manageOperand('set', currentOperand);
-
-    RESULT_INP.value = lengthControl(currentOperand);
-    showHistory()
-}
-
 
 // Show error function
 function showError() {
