@@ -133,7 +133,7 @@ button:hover::before {
     opacity: 1;
 }
 
-button[data-type="ones-division"] {
+button[data-type="num-action"] {
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 

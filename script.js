@@ -59,8 +59,8 @@ function setAction(dataType, btn) {
         case "negate":
             negateNumber()
             break;
-        case "ones-division":
-            onesDivision()
+        case "num-action":
+            singleNumAction(btn)
             break;
     }
 }
@@ -130,11 +130,7 @@ function calculation(btn) {
                 break;
             case '/':
                 if (b !== 0) calcResult = a / b
-                else {
-                    cleanCalculator()
-                    RESULT_INP.value = 'Error';
-                    return;
-                }
+                else return showError();
                 break;
         }
     }
@@ -233,30 +229,45 @@ function negateNumber() {
     manageOperand('set', currentOperand)
 }
 
-// Delete 1 by another number
-function onesDivision() {
-    if(isCalculated) {
+// Indicate a single number action and calculate
+function singleNumAction(btn) {
+    if (isCalculated) {
         operand2 = "";
         operator = "";
         isCalculated = false;
     }
     let currentOperand = manageOperand('get')
+    let action = btn.value
+    currentOperand = +currentOperand
 
-    if(currentOperand==="") currentOperand = "1"
-    else if(Number(currentOperand)==0) {
-        cleanCalculator()
-        RESULT_INP.value = "Error";
-        return;
+    switch (action) {
+        case "1/x":
+            if(currentOperand === 0) return showError();
+            currentOperand = 1 / currentOperand;
+            break;
+        case "square":
+            currentOperand = currentOperand ** 2;
+            break;
+        case "root":
+            if(currentOperand < 0) return showError();
+            currentOperand = Math.sqrt(currentOperand)
+            break;
     }
-    
-    currentOperand = 1 / +currentOperand;
+
     manageOperand('set', currentOperand);
-    
+
     RESULT_INP.value = lengthControl(currentOperand);
-    if(operand2!=="" && !isCalculated) {
-        HISTORY_INP.value = lengthControl(operand1)+" "+operator+" "+lengthControl(operand2)
+    if (operand2 !== "" && !isCalculated) {
+        HISTORY_INP.value = lengthControl(operand1) + " " + operator + " " + lengthControl(operand2)
     }
     else HISTORY_INP.value = lengthControl(operand1)
+}
+
+
+// Show error function
+function showError() {
+    cleanCalculator()
+    RESULT_INP.value = "Error";
 }
 
 // Remove pressed button style
