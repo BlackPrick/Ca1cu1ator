@@ -2,7 +2,6 @@ const BUTTONS = document.querySelectorAll('button')
 const RESULT_INP = document.querySelector('.action-inp')
 const HISTORY_INP = document.querySelector('.history-inp')
 let pressedBtn;
-let equalBtn;
 let operand1 = "";
 let operand2 = "";
 let operator = "";
@@ -20,8 +19,6 @@ BUTTONS.forEach((btn) => {
         btn.classList.add('pressed')
         pressedBtn = btn
     })
-
-    if (btn.value === "=") equalBtn = btn
 })
 
 // Events after keydown
@@ -45,16 +42,25 @@ function setAction(dataType, btn) {
             setOperator(btn)
             break;
         case "result":
-            calculation(btn)
+            calculation()
             break;
-        case "delete":
-            deleteSymbol()
+        case "percent":
+            getPercent()
+            break;
+        case "backspace":
+            backspace()
             break;
         case "clean":
             cleanCalculator()
             break;
+        case "clean-entry":
+            cleanEntry()
+            break;
         case "negate":
             negateNumber()
+            break;
+        case "num-action":
+            singleNumAction(btn)
             break;
     }
 }
@@ -65,6 +71,7 @@ function manageOperand(action, value) {
         case 'get':
             return (operator === "") ? operand1 : operand2;
         case 'set':
+            value = value.toString()
             if (operator === "") operand1 = value
             else operand2 = value
             break;
@@ -90,59 +97,73 @@ function operandConstructor(btn) {
 
 // Set operator for calculation
 function setOperator(btn) {
-    if (operator !== "" && operand2 !== "") calculation(equalBtn)
+    if (operator !== "" && operand2 !== "") calculation()
     if (operand1 === "") operand1 = "0";
 
     operator = btn.value
-    RESULT_INP.value = lengthControl(+operand1)
-    showHistory(operand1)
+    RESULT_INP.value = lengthControl(operand1)
 
     isCalculated = false;
     operand2 = "";
+    showHistory()
 }
 
 // Indicate calculation type and get result
-function calculation(btn) {
+function calculation() {
     if (operator === "") return;
     if (operand2 === "") operand2 = operand1;
-    let key = btn.value
-    let a = Number(operand1);
-    let b = Number(operand2);
+    let a = +operand1;
+    let b = +operand2;
     let calcResult = 0;
 
-    if (key === "=") {
-        switch (operator) {
-            case '+':
-                calcResult = a + b;
-                break;
-            case '-':
-                calcResult = a - b;
-                break;
-            case '*':
-                calcResult = a * b;
-                break;
-            case '/':
-                if (b !== 0) calcResult = a / b
-                else {
-                    cleanCalculator()
-                    RESULT_INP.value = 'Error';
-                    return;
-                }
-                break;
-        }
-    }
-    else if (key === "%") {
-        let index = (operator === "-" || operator === "+") ? 100 : 1000;
-        calcResult = a / index * b
+    switch (operator) {
+        case '+':
+            calcResult = a + b;
+            break;
+        case '-':
+            calcResult = a - b;
+            break;
+        case '*':
+            calcResult = a * b;
+            break;
+        case '/':
+            if (b !== 0) calcResult = a / b
+            else return showError();
+            break;
     }
 
     RESULT_INP.value = lengthControl(calcResult)
     isCalculated = true
-    showHistory(operand1, operand2)
+    showHistory()
     operand1 = calcResult.toString()
 }
 
-// Truncate infinity/floats and big numbers to exponential
+// Get percent
+function getPercent() {
+    if (isCalculated) resetLastEntry() 
+
+    if (operator === "") {
+        operand1 = +operand1 / 100;
+
+        RESULT_INP.value = lengthControl(operand1)
+        operand1 = operand1.toString();
+        showHistory()
+        return;
+    }
+
+    if (operand2 === "") operand2 = operand1;
+
+    if (operator === "/" || operator === "*")
+        operand2 = +operand2 / 100;
+    else if (operator === "-" || operator === "+")
+        operand2 = (+operand1) / 100 * (+operand2);
+
+    RESULT_INP.value = lengthControl(operand2)
+    operand2 = operand2.toString();
+    showHistory();
+}
+
+// Truncate infinity/floats, remove inaccuracy and big numbers to exponential
 function lengthControl(number) {
     // Chech if length is valid function
     const lenghtIsOkCheck = (a) => {
@@ -150,8 +171,9 @@ function lengthControl(number) {
         if ((a.charAt(0) === "-" && a.length <= 13) || (a.charAt(0) !== "-" && a.length <= 12)) return true;
         else return false;
     }
-
     if (lenghtIsOkCheck(number)) return number;
+
+    number = +number
     // Remove inaccuracy
     number = Number(number.toFixed(13))
     if (lenghtIsOkCheck(number)) return number;
@@ -164,10 +186,58 @@ function lengthControl(number) {
     return number;
 }
 
+
+// Make a number negative
+function negateNumber() {
+    if (isCalculated) resetLastEntry() 
+
+    let currentOperand = manageOperand('get')
+    if (currentOperand === "0") return;
+    if (currentOperand === "" && operand1 !== "") currentOperand = operand1;
+    if (currentOperand === "") return;
+
+    currentOperand = +currentOperand * -1;
+    RESULT_INP.value = lengthControl(currentOperand)
+    manageOperand('set', currentOperand)
+    showHistory()
+}
+
+// Indicate a single number action and calculate
+function singleNumAction(btn) {
+    if (isCalculated) resetLastEntry() 
+    if(operator!=="" && operand2==="") operand2 = "1";
+
+    let currentOperand = manageOperand('get')
+    let action = btn.value
+    currentOperand = +currentOperand
+
+    switch (action) {
+        case "1/x":
+            if (currentOperand === 0) return showError();
+            currentOperand = 1 / currentOperand;
+            break;
+        case "square":
+            currentOperand = currentOperand ** 2;
+            break;
+        case "root":
+            if (currentOperand < 0) return showError();
+            currentOperand = Math.sqrt(currentOperand)
+            break;
+    }
+
+    manageOperand('set', currentOperand);
+
+    RESULT_INP.value = lengthControl(currentOperand);
+    showHistory()
+}
+
 // Show previous action in history input
-function showHistory(a, b) {
-    let out = lengthControl(+a) + " " + operator + " ";
-    if (b !== undefined) out += lengthControl(+b) + " =";
+function showHistory() {
+    let out = "";
+    out += lengthControl(operand1)
+    if (operator !== "") out += " " + operator + " ";
+    if (operand2 !== "") out += lengthControl(operand2);
+    if (isCalculated && operand2 !== "") out += " = ";
     HISTORY_INP.value = out;
 }
 
@@ -181,8 +251,25 @@ function cleanCalculator() {
     isCalculated = false;
 }
 
+// Clean last entry
+function cleanEntry() {
+    if (operator !== "" && !isCalculated) {
+        operand2 = "0";
+        RESULT_INP.value = operand2;
+        return;
+    }
+    else cleanCalculator()
+}
+
+// Reset last entry
+function resetLastEntry() {
+    operand2 = "";
+    operator = "";
+    isCalculated = false;
+}
+
 // Backspace function 
-function deleteSymbol() {
+function backspace() {
     if (isCalculated === true) HISTORY_INP.value = "";
 
     let currentOperand = manageOperand('get')
@@ -194,26 +281,10 @@ function deleteSymbol() {
     manageOperand('set', currentOperand)
 }
 
-// Make a number negative
-function negateNumber() {
-    let showNegation = false;
-    if (isCalculated) {
-        operand2 = ""
-        operator = ""
-        isCalculated = false
-        showNegation = true
-    }
-
-    let currentOperand = manageOperand('get')
-    if (currentOperand === "0") return;
-    if (currentOperand === "" && operand1 !== "") currentOperand = operand1;
-    if (currentOperand === "") return;
-
-    currentOperand = +currentOperand * -1;
-    RESULT_INP.value = lengthControl(currentOperand)
-    if (showNegation) HISTORY_INP.value = lengthControl(currentOperand)
-    currentOperand = currentOperand.toString()
-    manageOperand('set', currentOperand)
+// Show error function
+function showError() {
+    cleanCalculator()
+    RESULT_INP.value = "Error";
 }
 
 // Remove pressed button style
