@@ -254,8 +254,9 @@ function cleanCalculator() {
 // Clean last entry
 function cleanEntry() {
     if (operator !== "" && !isCalculated) {
-        operand2 = "0";
-        RESULT_INP.value = operand2;
+        operand2 = "";
+        RESULT_INP.value = +operand2;
+        showHistory()
         return;
     }
     else cleanCalculator()
