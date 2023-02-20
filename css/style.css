@@ -4,11 +4,14 @@
         padding: 0.3rem;
     }
     .history-inp {
-        font-size: 1.5rem;
+        font-size: 1.7rem;
         color: grey;
     }
     .action-inp {
-        font-size: 4rem;
+        font-size: 4.6rem;
+    }
+    .small .action-inp {
+        font-size: 3.8rem;
     }
     button {
         font-size: 2rem;
@@ -25,6 +28,9 @@
     }
     .action-inp {
         font-size: 15vw;
+    }
+    .small .action-inp {
+        font-size: 14.2vw;
     }
     button {
         font-size: 8vw;
@@ -77,7 +83,8 @@ fieldset {
 }
 .inputs input {
     background-color: transparent;
-    height: 5rem;
+    /* height: 5rem; */
+    height: 6rem;
     width: 100%;
     text-align: end;
     border: none;

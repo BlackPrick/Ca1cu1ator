@@ -84,14 +84,15 @@ function operandConstructor(btn) {
     let key = btn.value
     let currentOperand = manageOperand('get')
 
-    if (currentOperand.length >= 12) return;
+    if((currentOperand.charAt(0) === "-" && currentOperand.length >= 13) ||
+     (currentOperand.charAt(0) !== "-" && currentOperand.length >= 12)) return;
     else if (key === "." && currentOperand.includes(".")) return;
     else if (key === "0" && currentOperand === "0") return;
     else if (key === "." && currentOperand === "") currentOperand = '0.';
     else if (key !== "." && key !== "0" && currentOperand === "0") currentOperand = key;
     else currentOperand += key
 
-    RESULT_INP.value = currentOperand;
+    showResult(currentOperand)
     manageOperand('set', currentOperand)
 }
 
@@ -101,7 +102,7 @@ function setOperator(btn) {
     if (operand1 === "") operand1 = "0";
 
     operator = btn.value
-    RESULT_INP.value = lengthControl(operand1)
+    showResult(operand1)
 
     isCalculated = false;
     operand2 = "";
@@ -132,7 +133,7 @@ function calculation() {
             break;
     }
 
-    RESULT_INP.value = lengthControl(calcResult)
+    showResult(calcResult)
     isCalculated = true
     showHistory()
     operand1 = calcResult.toString()
@@ -140,12 +141,12 @@ function calculation() {
 
 // Get percent
 function getPercent() {
-    if (isCalculated) resetLastEntry() 
+    if (isCalculated) resetLastEntry()
 
     if (operator === "") {
         operand1 = +operand1 / 100;
 
-        RESULT_INP.value = lengthControl(operand1)
+        showResult(operand1)
         operand1 = operand1.toString();
         showHistory()
         return;
@@ -158,20 +159,25 @@ function getPercent() {
     else if (operator === "-" || operator === "+")
         operand2 = (+operand1) / 100 * (+operand2);
 
-    RESULT_INP.value = lengthControl(operand2)
+    showResult(operand2)
     operand2 = operand2.toString();
     showHistory();
 }
 
 // Truncate infinity/floats, remove inaccuracy and big numbers to exponential
 function lengthControl(number) {
-    // Chech if length is valid function
     const lenghtIsOkCheck = (a) => {
         a = a.toString()
-        if ((a.charAt(0) === "-" && a.length <= 13) || (a.charAt(0) !== "-" && a.length <= 12)) return true;
+        if ((a.charAt(0) === "-" && a.length <= 10) || (a.charAt(0) !== "-" && a.length <= 9)) {
+            document.querySelector('.inputs').classList.remove('small')
+            return true;
+        }
+        if ((a.charAt(0) === "-" && a.length <= 13) || (a.charAt(0) !== "-" && a.length <= 12)) {
+            document.querySelector('.inputs').classList.add('small')
+            return true;
+        }
         else return false;
     }
-    if (lenghtIsOkCheck(number)) return number;
 
     number = +number
     // Remove inaccuracy
@@ -182,14 +188,14 @@ function lengthControl(number) {
         number = Math.round((number + Number.EPSILON) * 1000000) / 1000000;
         if (lenghtIsOkCheck(number)) return number;
     }
-    number = number.toExponential(6)
+   
+    number = number.toExponential(7)
     return number;
 }
 
-
 // Make a number negative
 function negateNumber() {
-    if (isCalculated) resetLastEntry() 
+    if (isCalculated) resetLastEntry()
 
     let currentOperand = manageOperand('get')
     if (currentOperand === "0") return;
@@ -197,15 +203,15 @@ function negateNumber() {
     if (currentOperand === "") return;
 
     currentOperand = +currentOperand * -1;
-    RESULT_INP.value = lengthControl(currentOperand)
+    showResult(currentOperand)
     manageOperand('set', currentOperand)
     showHistory()
 }
 
 // Indicate a single number action and calculate
 function singleNumAction(btn) {
-    if (isCalculated) resetLastEntry() 
-    if(operator!=="" && operand2==="") operand2 = "1";
+    if (isCalculated) resetLastEntry()
+    if (operator !== "" && operand2 === "") operand2 = "1";
 
     let currentOperand = manageOperand('get')
     let action = btn.value
@@ -227,16 +233,40 @@ function singleNumAction(btn) {
 
     manageOperand('set', currentOperand);
 
-    RESULT_INP.value = lengthControl(currentOperand);
+    showResult(currentOperand)
     showHistory()
+}
+
+// Set output into result input
+function showResult(result) {
+    result = lengthControl(result).toString()
+    if (!result.includes("e")) {
+        let pointIndx = result.indexOf(".")
+        let wholeNum;
+        if (pointIndx !== -1) {
+            wholeNum = result.slice(0, pointIndx)
+            wholeNum = Number(wholeNum).toLocaleString()
+            result = wholeNum + result.substring(pointIndx, result.length)
+        }
+        // If not infinity
+        if(isFinite(result)) result = Number(result).toLocaleString();
+    }
+
+    RESULT_INP.value = result;
 }
 
 // Show previous action in history input
 function showHistory() {
     let out = "";
-    out += lengthControl(operand1)
+    let a = lengthControl(operand1).toString()
+    a = (!a.includes("e")) ? Number(a) : a;
+    out += a
     if (operator !== "") out += " " + operator + " ";
-    if (operand2 !== "") out += lengthControl(operand2);
+    if (operand2 !== "") {
+        let b = lengthControl(operand2).toString()
+        b = (!b.includes("e")) ? Number(b) : b;
+        out += b
+    }
     if (isCalculated && operand2 !== "") out += " = ";
     HISTORY_INP.value = out;
 }
@@ -246,8 +276,8 @@ function cleanCalculator() {
     operand1 = "";
     operand2 = "";
     operator = "";
-    HISTORY_INP.value = "";
-    RESULT_INP.value = "0";
+    showHistory()
+    showResult("0")
     isCalculated = false;
 }
 
@@ -255,7 +285,7 @@ function cleanCalculator() {
 function cleanEntry() {
     if (operator !== "" && !isCalculated) {
         operand2 = "";
-        RESULT_INP.value = +operand2;
+        showResult("0")
         showHistory()
         return;
     }
@@ -276,7 +306,7 @@ function backspace() {
     let currentOperand = manageOperand('get')
 
     currentOperand = (currentOperand.length > 1) ? currentOperand.slice(0, -1) : "";
-    RESULT_INP.value = (currentOperand !== "" && currentOperand !== "-") ? lengthControl(currentOperand) : "0"
+    (currentOperand !== "" && currentOperand !== "-") ? showResult(currentOperand) : showResult("0")
     if (Number(currentOperand) === 0) currentOperand = "0";
 
     manageOperand('set', currentOperand)
