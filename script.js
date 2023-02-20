@@ -1,7 +1,6 @@
 const BUTTONS = document.querySelectorAll('button')
 const RESULT_INP = document.querySelector('.action-inp')
 const HISTORY_INP = document.querySelector('.history-inp')
-let pressedBtn;
 let operand1 = "";
 let operand2 = "";
 let operator = "";
@@ -17,7 +16,6 @@ BUTTONS.forEach((btn) => {
 
     btn.addEventListener("mousedown", () => {
         btn.classList.add('pressed')
-        pressedBtn = btn
     })
 })
 
@@ -28,7 +26,6 @@ window.addEventListener('keydown', function (e) {
         const dataType = btn.getAttribute('data-type')
         setAction(dataType, btn)
         btn.classList.add('pressed')
-        pressedBtn = btn
     }
 })
 
@@ -84,8 +81,8 @@ function operandConstructor(btn) {
     let key = btn.value
     let currentOperand = manageOperand('get')
 
-    if((currentOperand.charAt(0) === "-" && currentOperand.length >= 13) ||
-     (currentOperand.charAt(0) !== "-" && currentOperand.length >= 12)) return;
+    if ((currentOperand.charAt(0) === "-" && currentOperand.length >= 13) ||
+        (currentOperand.charAt(0) !== "-" && currentOperand.length >= 12)) return;
     else if (key === "." && currentOperand.includes(".")) return;
     else if (key === "0" && currentOperand === "0") return;
     else if (key === "." && currentOperand === "") currentOperand = '0.';
@@ -179,6 +176,7 @@ function lengthControl(number) {
         else return false;
     }
 
+    if (lenghtIsOkCheck(number)) return number;
     number = +number
     // Remove inaccuracy
     number = Number(number.toFixed(13))
@@ -188,7 +186,7 @@ function lengthControl(number) {
         number = Math.round((number + Number.EPSILON) * 1000000) / 1000000;
         if (lenghtIsOkCheck(number)) return number;
     }
-   
+
     number = number.toExponential(7)
     return number;
 }
@@ -239,18 +237,22 @@ function singleNumAction(btn) {
 
 // Set output into result input
 function showResult(result) {
-    result = lengthControl(result).toString()
-    if (!result.includes("e")) {
-        let pointIndx = result.indexOf(".")
-        let wholeNum;
+    RESULT_INP.setAttribute("data-value", result)
+    const getLocalStr = (number) => {
+        let pointIndx = number.indexOf(".")
         if (pointIndx !== -1) {
-            wholeNum = result.slice(0, pointIndx)
+            let wholeNum= number.slice(0, pointIndx)
             wholeNum = Number(wholeNum).toLocaleString()
-            result = wholeNum + result.substring(pointIndx, result.length)
+            number = wholeNum + number.substring(pointIndx, number.length)
+            return number;
         }
-        // Else if not infinity
-        else if(isFinite(result)) result = Number(result).toLocaleString();
+        // If not infinity
+        if (isFinite(result)) return Number(result).toLocaleString();
+        else return number;
     }
+
+    result = lengthControl(result).toString()
+    if (!result.includes("e") && Math.floor(+result).toString().length>3) result = getLocalStr(result)
 
     RESULT_INP.value = result;
 }
@@ -301,15 +303,19 @@ function resetLastEntry() {
 
 // Backspace function 
 function backspace() {
-    if (isCalculated === true) HISTORY_INP.value = "";
-
+    if (isCalculated === true)  {
+        HISTORY_INP.value = "";
+        resetLastEntry()
+        return;
+    }
     let currentOperand = manageOperand('get')
 
     currentOperand = (currentOperand.length > 1) ? currentOperand.slice(0, -1) : "";
-    (currentOperand !== "" && currentOperand !== "-") ? showResult(currentOperand) : showResult("0")
-    if (Number(currentOperand) === 0) currentOperand = "0";
+    if(Number(currentOperand) === 0 || currentOperand === "-") currentOperand = "0";
 
     manageOperand('set', currentOperand)
+    showResult(currentOperand)
+    showHistory()
 }
 
 // Show error function
@@ -319,15 +325,17 @@ function showError() {
 }
 
 // Remove pressed button style
-document.addEventListener('mouseup', () => {
-    if (pressedBtn !== undefined) {
-        pressedBtn.classList.remove("pressed")
-        pressedBtn = undefined;
-    }
-})
-document.addEventListener('keyup', () => {
-    if (pressedBtn !== undefined) {
-        pressedBtn.classList.remove("pressed")
-        pressedBtn = undefined;
-    }
+document.addEventListener('mouseup', () => BUTTONS.forEach((btn) => btn.classList.remove('pressed')))
+document.addEventListener('keyup', () => BUTTONS.forEach((btn) => btn.classList.remove('pressed')))
+
+
+// Copy result on click
+RESULT_INP.addEventListener("click", function() {
+    const tooltip = document.querySelector(".tooltip")
+    let value = RESULT_INP.getAttribute("data-value")
+    if(value==null || +value==0) return;
+
+    navigator.clipboard.writeText(value);
+    tooltip.style.visibility = "visible"
+    setTimeout(() => tooltip.style.visibility = "hidden", 1000)
 })
