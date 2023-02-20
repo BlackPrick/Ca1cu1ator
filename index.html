@@ -17,6 +17,7 @@
         <fieldset class="inputs">
             <input aria-label="Previos action of calculation" type="text" readonly="readonly" class="history-inp">
             <input aria-label="Current operand or result of calculation" type="text" readonly="readonly" class="action-inp" value="0">
+            <span class="tooltip">Copied to clipboard</span>
         </fieldset>
         <fieldset class="buttons">
             <button data-type="clean" value="Delete">C</button>
@@ -47,7 +48,7 @@
             <button data-type="negate">±</button>
             <button data-type="number" value="0">0</button>
             <button data-type="number" value=".">.</button>
-            <button class="equal" data-type="result">=</button>
+            <button class="equal" data-type="result" value="=">=</button>
         </fieldset>
     </form>
 </body>
