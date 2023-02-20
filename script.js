@@ -92,8 +92,8 @@ function operandConstructor(btn) {
     else if (key !== "." && key !== "0" && currentOperand === "0") currentOperand = key;
     else currentOperand += key
 
-    showResult(currentOperand)
     manageOperand('set', currentOperand)
+    showResult(currentOperand)
 }
 
 // Set operator for calculation
@@ -248,8 +248,8 @@ function showResult(result) {
             wholeNum = Number(wholeNum).toLocaleString()
             result = wholeNum + result.substring(pointIndx, result.length)
         }
-        // If not infinity
-        if(isFinite(result)) result = Number(result).toLocaleString();
+        // Else if not infinity
+        else if(isFinite(result)) result = Number(result).toLocaleString();
     }
 
     RESULT_INP.value = result;
