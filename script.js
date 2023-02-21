@@ -17,6 +17,9 @@ BUTTONS.forEach((btn) => {
     btn.addEventListener("mousedown", () => {
         btn.classList.add('pressed')
     })
+    btn.addEventListener("touchstart", () => {
+        btn.classList.add('pressed')
+    })
 })
 
 // Events after keydown
@@ -166,14 +169,7 @@ function getPercent() {
 function lengthControl(number) {
     const lenghtIsOkCheck = (a) => {
         a = a.toString()
-        if ((a.charAt(0) === "-" && a.length <= 10) || (a.charAt(0) !== "-" && a.length <= 9)) {
-            document.querySelector('.inputs').classList.remove('small')
-            return true;
-        }
-        if ((a.charAt(0) === "-" && a.length <= 13) || (a.charAt(0) !== "-" && a.length <= 12)) {
-            document.querySelector('.inputs').classList.add('small')
-            return true;
-        }
+        if ((a.charAt(0) === "-" && a.length <= 13) || (a.charAt(0) !== "-" && a.length <= 12)) return true;
         else return false;
     }
 
@@ -253,6 +249,14 @@ function showResult(result) {
     }
 
     result = lengthControl(result).toString()
+    // Digits size
+    if ((result.charAt(0) === "-" && result.length <= 10) || (result.charAt(0) !== "-" && result.length <= 9)) {
+        document.querySelector('.inputs').classList.remove('small')
+    }
+    else if ((result.charAt(0) === "-" && result.length <= 13) || (result.charAt(0) !== "-" && result.length <= 12)) {
+        document.querySelector('.inputs').classList.add('small')
+    }
+    // Invoke number visual separation by commas
     if (!result.includes("e") && Math.floor(+result).toString().length>3) result = getLocalStr(result)
 
     RESULT_INP.value = result;
@@ -328,6 +332,7 @@ function showError() {
 
 // Remove pressed button style
 document.addEventListener('mouseup', () => BUTTONS.forEach((btn) => btn.classList.remove('pressed')))
+document.addEventListener('touchend', () => BUTTONS.forEach((btn) => btn.classList.remove('pressed')))
 document.addEventListener('keyup', () => BUTTONS.forEach((btn) => btn.classList.remove('pressed')))
 
 
