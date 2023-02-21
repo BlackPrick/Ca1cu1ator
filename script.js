@@ -91,6 +91,7 @@ function operandConstructor(btn) {
 
     manageOperand('set', currentOperand)
     showResult(currentOperand)
+    showHistory()
 }
 
 // Set operator for calculation
@@ -310,6 +311,7 @@ function backspace() {
     }
     let currentOperand = manageOperand('get')
 
+    if(currentOperand.includes("e")) currentOperand = "0";
     currentOperand = (currentOperand.length > 1) ? currentOperand.slice(0, -1) : "";
     if(Number(currentOperand) === 0 || currentOperand === "-") currentOperand = "0";
 
