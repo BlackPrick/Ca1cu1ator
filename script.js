@@ -347,5 +347,3 @@ RESULT_INP.addEventListener("click", function() {
     setTimeout(() => tooltip.style.visibility = "hidden", 1000)
 })
 
-
-${{ secrets.TEST_SECRET }}
